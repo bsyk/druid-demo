@@ -1,0 +1,31 @@
+FROM ubuntu:jammy as base
+RUN apt-get update && \
+    apt-get install --yes openjdk-17-jre-headless && \
+    apt-get clean
+
+FROM base as builder
+RUN apt-get install --yes git && \
+    apt-get clean
+
+WORKDIR /app
+RUN git clone https://github.com/Netflix-Skunkworks/iep-apps.git
+
+WORKDIR /app/iep-apps
+RUN ./project/sbt "project atlas-druid" package
+RUN ./project/sbt -warn "project atlas-druid" "export runtime:fullClasspath" > classpath.txt
+# Copy all dependencies
+RUN mkdir lib
+RUN cat classpath.txt | tr ':' ' ' | xargs cp --target-directory=./lib/ && \
+    cp --target-directory=./lib/ atlas-druid/target/scala-2.13/atlas-druid_2.13*.jar
+
+FROM base
+WORKDIR /app
+COPY --from=builder /app/iep-apps/lib lib
+
+RUN adduser --system --disabled-password --home /app --shell /bin/bash --group atlas
+
+USER atlas
+
+EXPOSE 7101
+
+CMD ["java", "-cp", ".:lib/*", "com.netflix.atlas.druid.Main"]

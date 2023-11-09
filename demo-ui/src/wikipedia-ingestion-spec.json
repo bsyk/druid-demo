@@ -1,0 +1,70 @@
+{
+  "type": "index_parallel",
+  "spec": {
+    "ioConfig": {
+      "type": "index_parallel",
+      "inputSource": {
+        "type": "http",
+        "uris": ["https://druid.apache.org/data/wikipedia.json.gz"]
+      },
+      "inputFormat": { "type": "json" }
+    },
+    "dataSchema": {
+      "granularitySpec": {
+        "segmentGranularity": "day",
+        "queryGranularity": "minute",
+        "rollup": true
+      },
+      "dataSource": "wikipedia",
+      "timestampSpec": { "column": "timestamp", "format": "iso" },
+      "dimensionsSpec": {
+        "dimensions": [
+          "isRobot",
+          "channel",
+          "flags",
+          "isUnpatrolled",
+          "page",
+          "diffUrl",
+          "comment",
+          "isNew",
+          "isMinor",
+          "isAnonymous",
+          "user",
+          "namespace",
+          "cityName",
+          "countryName",
+          "regionIsoCode",
+          "metroCode",
+          "countryIsoCode",
+          "regionName"
+        ]
+      },
+      "metricsSpec": [
+        { "name": "count", "type": "count" },
+        { "name": "sum_added", "type": "longSum", "fieldName": "added" },
+        {
+          "name": "sum_commentLength",
+          "type": "longSum",
+          "fieldName": "commentLength"
+        },
+        { "name": "sum_delta", "type": "longSum", "fieldName": "delta" },
+        {
+          "name": "sum_deltaBucket",
+          "type": "longSum",
+          "fieldName": "deltaBucket"
+        },
+        { "name": "sum_deleted", "type": "longSum", "fieldName": "deleted" },
+        {
+          "type": "spectatorHistogram",
+          "name": "hist_added",
+          "fieldName": "added"
+        }
+      ]
+    },
+    "tuningConfig": {
+      "type": "index_parallel",
+      "partitionsSpec": { "type": "hashed" },
+      "forceGuaranteedRollup": true
+    }
+  }
+}

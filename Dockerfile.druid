@@ -1,0 +1,26 @@
+ARG DRUID_VER=29.0.0-snapshot
+
+FROM apache/druid:${DRUID_VER} AS druid
+
+FROM ubuntu:jammy
+RUN apt-get update && \
+    apt-get install --yes openjdk-17-jre-headless perl-modules && \
+    apt-get clean
+
+RUN addgroup --system -gid 1000 druid \
+ && adduser --system --uid 1000 --disabled-password --home /opt/druid --shell /bin/bash --group druid
+
+COPY --from=druid --chown=druid:druid /opt/druid /opt/druid
+
+WORKDIR /opt/druid
+
+# Add spectator-histogram extension to the load list
+# This is a hack for a demo, this is not how you should do it in production
+RUN sed -r -i 's/^druid.extensions.loadList=\[(.*)\]/druid.extensions.loadList=[\1, "druid-spectator-histogram"]/g' conf/druid/single-server/nano-quickstart/_common/common.runtime.properties
+
+USER druid
+
+EXPOSE 8888/tcp
+EXPOSE 8081/tcp
+
+CMD ["bash", "-c", "/opt/druid/bin/start-nano-quickstart"]

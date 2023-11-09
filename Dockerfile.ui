@@ -1,0 +1,30 @@
+FROM node:18-alpine as builder
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the package.json and package-lock.json files to the container
+COPY demo-ui/ ./
+
+# Install dependencies and make production build
+RUN npm ci && npm run build
+
+# Create a new container that's a super light-weight web server
+FROM busybox
+
+# Add a reverse proxy to the druid container so our webapp can talk to it
+RUN echo "P:/druid/:http://druid:8888/druid/" > /etc/httpd.conf
+
+# Create a non-root user to own the files and run our server
+RUN adduser -D static
+USER static
+WORKDIR /site
+
+# Copy the webapp
+COPY --from=builder /app/build/ ./
+
+# Run BusyBox httpd
+CMD ["busybox", "httpd", "-f", "-v", "-p", "3000"]
+
+# Expose port 3000 for the webapp
+EXPOSE 3000

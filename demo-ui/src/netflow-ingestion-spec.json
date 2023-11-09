@@ -1,0 +1,67 @@
+{
+  "type": "index_parallel",
+  "spec": {
+    "ioConfig": {
+      "type": "index_parallel",
+      "inputSource": {
+        "type": "http",
+        "uris": [
+          "https://github.com/bsyk/druid-demo/raw/main/network_flow.csv.gz"
+        ]
+      },
+      "inputFormat": {
+        "type": "csv",
+        "findColumnsFromHeader": true
+      }
+    },
+    "tuningConfig": {
+      "type": "index_parallel",
+      "partitionsSpec": {
+        "type": "hashed"
+      },
+      "forceGuaranteedRollup": true
+    },
+    "dataSchema": {
+      "dataSource": "network_flow",
+      "timestampSpec": {
+        "column": "time_micros",
+        "format": "micro"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "source_host",
+          "dest_host",
+          {
+            "type": "string",
+            "name": "source_port"
+          },
+          {
+            "type": "string",
+            "name": "dest_port"
+          }
+        ]
+      },
+      "granularitySpec": {
+        "queryGranularity": "minute",
+        "rollup": true,
+        "segmentGranularity": "all"
+      },
+      "metricsSpec": [
+        {
+          "name": "count",
+          "type": "count"
+        },
+        {
+          "name": "sum_packet_size",
+          "type": "longSum",
+          "fieldName": "packet_size"
+        },
+        {
+          "type": "spectatorHistogram",
+          "name": "hist_packet_size",
+          "fieldName": "packet_size"
+        }
+      ]
+    }
+  }
+}
