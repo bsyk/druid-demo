@@ -5,13 +5,16 @@ Docker compose that sets up a nano Druid cluster and Atlas-Druid bridge
 have been build and available to your docker host. This image must include the contrib-extensions
 in order to be able to load the demo druid-spectator-histogram module.
 
-To build the base Druid docker image, follow the instructions in the readme at https://github.com/apache/druid/blob/master/distribution/docker/README.md
+To build the base Druid docker image, first check out [this branch](https://github.com/bsyk/druid/tree/spectator-histogram) from my forked repo then follow the instructions below.
 
-Except, we want to ensure that extensions-contrib are included. The instructions miss this if building in Apple M1/M2 so are copied/updated here.
+Instructions are taken from the [official readme](https://github.com/apache/druid/blob/master/distribution/docker/README.md)
+Except, we want to ensure that extensions-contrib are included. The instructions miss this if building on Apple M1/M2 so are copied/updated here.
+
+> Make sure to be on the `spectator-histogram` branch before proceeding below
 
 ### Build Base Druid Image on non-Apple hardware
 
-From the root of the repo, run following command. This will build from source within the container, including extensions-contrib.
+From the root of the forked repo, run following command. This will build from source within the container, including extensions-contrib.
 
 ```bash
 DOCKER_BUILDKIT=1 docker build -t apache/druid:29.0.0-snapshot -f distribution/docker/Dockerfile .
@@ -20,7 +23,7 @@ DOCKER_BUILDKIT=1 docker build -t apache/druid:29.0.0-snapshot -f distribution/d
 ### Building images on Apple M1/M2
 To build images on Apple M1/M2, you need to follow the instructions in this section.
 
-1. build Druid distribution from the root of the repo, including extensions-contrib.
+1. build Druid distribution from the root of the forked repo, including extensions-contrib.
    ```bash
    mvn clean package \
       -Pdist,bundle-contrib-exts \
@@ -33,7 +36,7 @@ To build images on Apple M1/M2, you need to follow the instructions in this sect
    ```
 
 ## Build and Run the Demo
-Once you have the Druid 29.0.0-snapshot image built you can build and run the demo containers.
+Once you have the Druid 29.0.0-snapshot image built, you can build and run the demo containers.
 
 In the root of this demo repo:
 
