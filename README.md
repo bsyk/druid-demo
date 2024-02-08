@@ -5,7 +5,7 @@ Docker compose that sets up a nano Druid cluster and Atlas-Druid bridge
 have been build and available to your docker host. This image must include the contrib-extensions
 in order to be able to load the demo druid-spectator-histogram module.
 
-To build the base Druid docker image, first check out my forked repo then follow the instructions below.
+To build the base Druid docker image, first check out [my forked repo](https://github.com/bsyk/druid) then follow the instructions below.
 
 Instructions are taken from the [official readme](https://github.com/apache/druid/blob/master/distribution/docker/README.md)
 Except, we want to ensure that extensions-contrib are included. The instructions miss this if building on Apple M1/M2 so are copied/updated here.
