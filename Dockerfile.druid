@@ -1,4 +1,4 @@
-ARG DRUID_VER=29.0.0-snapshot
+ARG DRUID_VER=29.0.0
 
 FROM apache/druid:${DRUID_VER} AS druid
 
